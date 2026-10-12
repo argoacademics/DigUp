@@ -83,9 +83,10 @@ public enum Crawler {
                         return
                     }
                     // Reading a dataless placeholder (iCloud "Optimize Mac Storage", File Providers) downloads it.
+                    // Pages documents are the exception: small, and iCloud keeps them there by default.
                     let dataless = info.st_flags & 0x4000_0000 != 0  // SF_DATALESS
                     let inCloud = values?.isUbiquitousItem == true && values?.ubiquitousItemDownloadingStatus != .current
-                    if dataless || inCloud {
+                    if dataless || inCloud, !Rules.cloudReadExtensions.contains(url.pathExtension.lowercased()) {
                         report.skipped["in the cloud, not downloaded", default: 0] += 1
                         return
                     }

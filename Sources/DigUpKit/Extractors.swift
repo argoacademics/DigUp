@@ -159,7 +159,8 @@ enum PDFExtractor {
 }
 
 enum DocExtractor {
-    /// Plain text from txt/md directly, HTML by stripping tags, and rtf/docx/doc/odt through the Cocoa text system.
+    /// Plain text from txt/md directly, HTML by stripping tags, Pages from its own archive (`PagesExtractor`), and
+    /// rtf/docx/doc/odt through the Cocoa text system.
     /// (Cocoa's HTML import runs WebKit and must be on the main thread; the app indexes on a background queue.)
     static func text(of url: URL) throws -> String {
         let ext = url.pathExtension.lowercased()
@@ -170,6 +171,7 @@ enum DocExtractor {
         case "odt": type = .openDocument
         case "rtf": type = .rtf
         case "html", "htm": return plainText(fromHTML: try readText(url))
+        case "pages": return try PagesExtractor.text(of: url)
         default: return try readText(url)
         }
         return try NSAttributedString(url: url, options: [.documentType: type], documentAttributes: nil).string
