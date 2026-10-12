@@ -40,9 +40,12 @@ cp "$BIN_DIR/DigUpApp" "$APP/Contents/MacOS/$APP_NAME"
 # The indexing helper lives in Helpers/: next to DigUp in MacOS/ it would collide on a case-insensitive disk.
 cp "$BIN_DIR/digup" "$APP/Contents/Helpers/digup"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
-xcrun actool --compile "$APP/Contents/Resources" --platform macosx --target-device mac --minimum-deployment-target 14.0 \
-  --app-icon AppIcon --output-partial-info-plist "$(mktemp -d)/AppIcon.plist" --enable-on-demand-resources NO \
-  --development-region en "$PWD/Resources/AppIcon/AppIcon.icon" > /dev/null
+# actool comes with Xcode only: with just the Command Line Tools the app gets the .icns alone.
+if xcrun -f actool > /dev/null 2>&1; then
+  xcrun actool --compile "$APP/Contents/Resources" --platform macosx --target-device mac \
+    --minimum-deployment-target 14.0 --app-icon AppIcon --output-partial-info-plist "$(mktemp -d)/AppIcon.plist" \
+    --enable-on-demand-resources NO --development-region en "$PWD/Resources/AppIcon/AppIcon.icon" > /dev/null
+fi
 cp "$ICON" "$APP/Contents/Resources/AppIcon.icns"   # over actool's plainer fallback: ours has simplified 16 and 32 px
 cp Resources/Acknowledgements.txt "$APP/Contents/Resources/Acknowledgements.txt"
 
